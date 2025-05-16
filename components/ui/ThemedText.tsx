@@ -47,16 +47,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
+    fontSize: 38, // plus grand
     fontWeight: 'bold',
-    lineHeight: 32,
-    marginBottom: 16,
-    //position center
+    lineHeight: 40,
+    marginBottom: 24,
     textAlign: 'center',
   },
   bigSubtitle: {
-    fontSize: 24,
-  
+    fontSize: 32, // plus grand
   },
   subtitle: {
     fontSize: 20,

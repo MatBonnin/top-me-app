@@ -1,13 +1,13 @@
 // src/components/ui/ListInput.tsx
 
-import { TextInput as RNTextInput, StyleSheet, TextInputProps, View } from 'react-native'
+import { TextInput as RNTextInput, StyleProp, StyleSheet, TextInputProps, TextStyle, View } from 'react-native'
 
 import Colors from '@/constants/Colors'
 import { useThemeMode } from '@/context/ThemeContext'
 import React from 'react'
 
 type ListInputProps = TextInputProps & {
-  style?: object
+  style?: StyleProp<TextStyle>   // ← ici on précise StyleProp<TextStyle>
 }
 
 export function ListInput({ style, ...props }: ListInputProps) {
@@ -37,14 +37,16 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     backgroundColor: 'transparent',
-    fontSize: 18,
-    height: 48,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
+    fontSize: 22,
+    height: 64,
+    paddingHorizontal: 0,
+    borderRadius: 0,
+    borderWidth: 0,
     borderColor: 'transparent',
-    //shadow
- 
-
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
 })

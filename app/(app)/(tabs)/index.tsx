@@ -17,7 +17,7 @@ import { useRouter } from 'expo-router';
 
 export default function AccueilScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const logo = require('../../../assets/images/logo.png');
 
@@ -36,11 +36,7 @@ export default function AccueilScreen() {
       </ThemedText>
 
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="#3B82F6"
-          style={styles.loader}
-        />
+        <ActivityIndicator size="large" color="#3B82F6" style={styles.loader} />
       ) : (
         <ScrollView
           contentContainerStyle={styles.grid}
@@ -52,10 +48,13 @@ export default function AccueilScreen() {
               name={cat.name}
               imageUrl={cat.imageUrl!}
               onPress={() => {
-                // On ne transmet que categoryId :
                 router.push({
                   pathname: '/[categoryId]',
-                  params: { categoryId: cat.id, categoryName: cat.name, },
+                  params: {
+                    categoryId: cat.id,
+                    categoryName: cat.name,
+                    categoryImage: cat.imageUrl,
+                  },
                 });
               }}
             />
