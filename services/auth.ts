@@ -1,9 +1,8 @@
 // src/services/auth.ts
 
-import axios, { AxiosError } from 'axios';
-
-import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AxiosError } from 'axios';
+import api from './api';
 
 export interface LoginDto    { email: string; password: string }
 export interface RegisterDto { email: string; username: string; password: string }
@@ -20,32 +19,17 @@ export interface MeResponse {
   avatarUrl?: string;
 }
 
-const instance = axios.create({
-  baseURL: API_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
-
-// Interceptor pour injecter automatiquement le token
-instance.interceptors.request.use(
-  async config => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (token) config.headers!['Authorization'] = `Bearer ${token}`;
-    } catch (e) {
-      console.error('[auth] Interceptor error:', e);
-    }
-    return config;
-  },
-  error => Promise.reject(error)
-);
-
 /**
  * Authentification : retourne token + user
  */
 export async function login(dto: LoginDto): Promise<AuthResponse> {
   try {
-    const { data } = await instance.post<AuthResponse>('/auth/login', dto);
+    console.log('[auth] Login en courrs');
+    const { data } = await api.post<AuthResponse>('/auth/login', dto);
     await AsyncStorage.setItem('token', data.access_token);
+    console.log('[auth] Login success:', data);
+    console.log('[auth] Token saved:', await AsyncStorage.getItem('token'));
+
     return data;
   } catch (err) {
     const error = err as AxiosError;
@@ -56,15 +40,12 @@ export async function login(dto: LoginDto): Promise<AuthResponse> {
 }
 
 /**
- * Inscription : appelle /auth/register, puis se logue automatiquement
+ * Inscription : crée le compte puis récupère le token automatiquement
  */
 export async function register(dto: RegisterDto): Promise<AuthResponse> {
   try {
-    // Création du compte - le backend retourne un User, pas de token
-    await instance.post('/auth/register', dto);
-    // Maintenant on récupère le token en se loguant
-    const loginResponse = await login({ email: dto.email, password: dto.password });
-    return loginResponse;
+    await api.post('/auth/register', dto);
+    return await login({ email: dto.email, password: dto.password });
   } catch (err) {
     const error = err as AxiosError;
     if (error.response?.status === 400) {
@@ -95,7 +76,7 @@ export async function logout(): Promise<void> {
  */
 export async function fetchMe(): Promise<MeResponse> {
   try {
-    const { data } = await instance.get<MeResponse>('/users/me');
+    const { data } = await api.get<MeResponse>('/users/me');
     return data;
   } catch (err) {
     const error = err as AxiosError;
