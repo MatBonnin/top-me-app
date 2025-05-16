@@ -61,6 +61,15 @@ export async function fetchItems(listId: string): Promise<Item[]> {
   return data;
 }
 
+
+export async function fetchListByCategory(categoryId: string): Promise<List> {
+  
+    const { data } = await api.get<List>(`/lists/category/${categoryId}`);
+    return data;
+
+}
+
+
 export async function addItem(listId: string, name: string, rank: number): Promise<Item> {
   const { data } = await api.post<Item>(`/lists/${listId}/items`, { name, rank });
   return data;

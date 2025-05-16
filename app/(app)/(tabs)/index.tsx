@@ -1,8 +1,14 @@
-// app/(tabs)/index.tsx
+// app/(app)/(tabs)/index.tsx
 
 import { Category, fetchCategories } from '@/services/lists';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import CategoryCard from '@/components/CategoryCard';
 import { ThemedText } from '@/components/ui/ThemedText';
@@ -13,6 +19,7 @@ export default function AccueilScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading]       = useState(true);
   const router = useRouter();
+  const logo = require('../../../assets/images/logo.png');
 
   useEffect(() => {
     fetchCategories()
@@ -23,23 +30,36 @@ export default function AccueilScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <Image source={logo} style={styles.logo} resizeMode="contain" />
       <ThemedText type="title" style={styles.title}>
-        TopMe
+        Choisissez une catégorie
       </ThemedText>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#3B82F6" style={styles.loader} />
+        <ActivityIndicator
+          size="large"
+          color="#3B82F6"
+          style={styles.loader}
+        />
       ) : (
-        <ScrollView contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.grid}
+          showsVerticalScrollIndicator={false}
+        >
           {categories.map(cat => (
             <CategoryCard
               key={cat.id}
               name={cat.name}
               imageUrl={cat.imageUrl!}
-              onPress={() => router.push(`../list/create?categoryId=${cat.id}`)}
+              onPress={() => {
+                // On ne transmet que categoryId :
+                router.push({
+                  pathname: '/[categoryId]',
+                  params: { categoryId: cat.id, categoryName: cat.name, },
+                });
+              }}
             />
           ))}
-          {/* Si nombres impairs, tu peux ajouter une View vide pour équilibrer la dernière ligne */}
           {categories.length % 2 === 1 && <View style={{ width: '48%' }} />}
         </ScrollView>
       )}
@@ -59,6 +79,11 @@ const styles = StyleSheet.create({
   loader: {
     flex: 1,
     justifyContent: 'center',
+  },
+  logo: {
+    width: 240,
+    height: 240,
+    alignSelf: 'center',
   },
   grid: {
     flexDirection: 'row',

@@ -83,7 +83,7 @@ export default function LoginScreen() {
         )}
       />
 
-      {error && <ThemedText type="subtitle">{error}</ThemedText>}
+      {/* {error && <ThemedText type="subtitle">{error}</ThemedText>} */}
 
       {busy ? (
         <ActivityIndicator />
