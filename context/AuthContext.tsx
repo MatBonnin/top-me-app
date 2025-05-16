@@ -20,15 +20,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface AuthContextData {
   user: AuthResponse['user'] | null;
   loading: boolean;
+  error: string | null;
   signIn:  (email: string, password: string) => Promise<void>;
   signUp:  (email: string, username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-// Export du contexte pour l'usage direct si nécessaire
 export const AuthContext = createContext<AuthContextData>({
   user: null,
   loading: true,
+  error: null,
   signIn:  async () => {},
   signUp:  async () => {},
   signOut: async () => {},
@@ -41,8 +42,8 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser]       = useState<AuthResponse['user'] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState<string | null>(null);
 
-  // Au démarrage, on recharge le token + l'utilisateur
   useEffect(() => {
     async function loadUser() {
       const token = await AsyncStorage.getItem('token');
@@ -50,10 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const me = await apiFetchMe();
           setUser(me);
-        } catch {
-          // token invalide ou expiré
+        } catch (err: any) {
           await AsyncStorage.removeItem('token');
           setUser(null);
+          setError(err.message);
         }
       }
       setLoading(false);
@@ -61,33 +62,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, []);
 
-  // Connexion
   const signIn = async (email: string, password: string) => {
     setLoading(true);
-    const { access_token, user: me } = await apiLogin({ email, password });
-    await AsyncStorage.setItem('token', access_token);
-    setUser(me);
-    setLoading(false);
+    setError(null);
+    try {
+      const { access_token, user: me } = await apiLogin({ email, password });
+      await AsyncStorage.setItem('token', access_token);
+      setUser(me);
+    } catch (err: any) {
+      setError(err.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Inscription
   const signUp = async (email: string, username: string, password: string) => {
     setLoading(true);
-    const { access_token, user: me } = await apiRegister({ email, username, password });
-    await AsyncStorage.setItem('token', access_token);
-    setUser(me);
-    setLoading(false);
+    setError(null);
+    try {
+      const { access_token, user: me } = await apiRegister({ email, username, password });
+      await AsyncStorage.setItem('token', access_token);
+      setUser(me);
+    } catch (err: any) {
+      setError(err.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Déconnexion
   const signOut = async () => {
-    await apiLogout();
-    await AsyncStorage.removeItem('token');
-    setUser(null);
+    setLoading(true);
+    try {
+      await apiLogout();
+      await AsyncStorage.removeItem('token');
+      setUser(null);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
