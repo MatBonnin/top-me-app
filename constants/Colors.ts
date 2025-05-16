@@ -1,26 +1,43 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+// src/constants/Colors.ts
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
-export const Colors = {
+const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    // Couleurs “marque”
+    primary:      '#3B82F6',   // Boutons principaux, liens, éléments actifs
+    secondary:    '#EF4444',   // CTA secondaires, icônes de notification
+    accent:       '#4ECDC4',   // Badges, indicateurs de succès
+
+    // Neutres
+    neutralLight:  '#F5F5F5',  // Fonds d’écrans, cartes, surfaces
+    neutralMedium: '#E5E7EB',  // Bordures, séparateurs, arrière‐plan de champs
+    neutralDark:   '#374151',  // Texte principal, titres
+
+    // Typo & UI
+    textPrimary:    '#374151',  // Texte principal
+    textSecondary:  '#9CA3AF',  // Texte d’aide, placeholders, légendes
+    border:         '#E5E7EB',  // Bordures, séparateurs
+    card:           '#FFFFFF',  // Cartes, surfaces sur fond
+    background:     '#F5F5F5',  // Arrière‐plan global
+    notification:   '#EF4444',  // Badges de notification
+    tint:           '#3B82F6',  // Accent global (onglets, liens)
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    primary:       '#3B82F6',
+    secondary:     '#EF4444',
+    accent:        '#4ECDC4',
+
+    neutralLight:  '#1F2937',  // Cartes / surfaces (remplace #FFFFFF)
+    neutralMedium: '#4B5563',  // Bordures / séparateurs
+    neutralDark:   '#F5F5F5',  // Texte principal
+
+    textPrimary:    '#F5F5F5',
+    textSecondary:  '#9CA3AF',
+    border:         '#4B5563',
+    card:           '#1F2937',
+    background:     '#374151',
+    notification:   '#EF4444',
+    tint:           '#3B82F6',
   },
-};
+} as const
+
+export default Colors

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
+      "@env": ["./env.d.ts"],
       "@/*": [
         "./*"
       ]
