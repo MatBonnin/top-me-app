@@ -1,51 +1,55 @@
-// components/ui/TextInput.tsx
+// src/components/ui/TextInput.tsx
 
-import {
-  TextInput as RNInput,
-  TextInputProps as RNTextInputProps,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextStyle,
-  View,
-} from 'react-native'
+import { TextInput as RNTextInput, TextInputProps as RNTextInputProps, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native'
 
-import { useThemeColor } from '@/hooks/useThemeColor'
+import Colors from '@/constants/Colors'
+import { useThemeMode } from '@/context/ThemeContext'
 import React from 'react'
 
-interface TextInputProps extends RNTextInputProps {
+type TextInputProps = RNTextInputProps & {
+  style?: ViewStyle
   error?: string
-  style?: StyleProp<TextStyle>
 }
 
-export function TextInput({ error, style, ...props }: TextInputProps) {
-  // Récupère la couleur de bordure et de texte selon le thème
-  const borderColor = useThemeColor({}, 'border')
-  const textColor   = useThemeColor({}, 'textPrimary')
+export function TextInput({ style, error, ...props }: TextInputProps) {
+  const { mode } = useThemeMode()
+  const borderColor = error ? Colors[mode].secondary : Colors[mode].neutralMedium
+  const placeholderTextColor = Colors[mode].textSecondary
+  const backgroundColor = Colors[mode].card
+  const textColor = Colors[mode].textPrimary
 
   return (
-    <View style={styles.wrapper}>
-      <RNInput
+    <View style={styles.container}>
+      <RNTextInput
+        style={[
+          styles.input,
+          { borderColor, backgroundColor, color: textColor },
+          style,
+        ]}
+        placeholderTextColor={placeholderTextColor}
         {...props}
-        style={[styles.input, { borderColor, color: textColor }, style]}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={[styles.error, { color: Colors[mode].secondary }]}>{error}</Text> : null}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
     marginBottom: 16,
-  },
+  } as ViewStyle,
   input: {
     borderWidth: 1,
     borderRadius: 6,
     padding: 10,
     fontSize: 16,
-  },
+    lineHeight: 24,
+    fontFamily: 'Roboto',
+  } as TextStyle,
   error: {
-    color: '#EF4444',
     marginTop: 4,
-  },
+    fontSize: 12,
+    lineHeight: 18,
+    fontStyle: 'italic',
+  } as TextStyle,
 })

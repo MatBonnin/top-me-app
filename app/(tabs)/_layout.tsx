@@ -22,10 +22,10 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({ ios: { position: 'absolute' }, default: {} }),
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Accueil',            tabBarIcon: ({ color }) => <IconSymbol name="house.fill"           size={24} color={color}/> }} />
-      <Tabs.Screen name="mes-tops" options={{ title: 'Mes Tops',       tabBarIcon: ({ color }) => <IconSymbol name="list.bullet"          size={24} color={color}/> }} />
-      <Tabs.Screen name="comparaisons" options={{ title: 'Comparaisons', tabBarIcon: ({ color }) => <IconSymbol name="chart.bar.fill"      size={24} color={color}/> }} />
-      <Tabs.Screen name="profil" options={{ title: 'Profil',            tabBarIcon: ({ color }) => <IconSymbol name="person.fill"          size={24} color={color}/> }} />
+      <Tabs.Screen name="index" options={{ title: 'Accueil',            tabBarIcon: ({ color }) => <IconSymbol name="house"           size={24} color={color}/> }} />
+      <Tabs.Screen name="mes-tops" options={{ title: 'Mes Tops',       tabBarIcon: ({ color }) => <IconSymbol name="list"          size={24} color={color}/> }} />
+      <Tabs.Screen name="comparaisons" options={{ title: 'Comparaisons', tabBarIcon: ({ color }) => <IconSymbol name="compare-arrows"      size={24} color={color}/> }} />
+      <Tabs.Screen name="profil" options={{ title: 'Profil',            tabBarIcon: ({ color }) => <IconSymbol name="person"          size={24} color={color}/> }} />
     </Tabs>
   )
 }

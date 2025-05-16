@@ -4,8 +4,9 @@ import * as yup from 'yup'
 
 import React, { useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { ActivityIndicator, Button, StyleSheet } from 'react-native'
+import { ActivityIndicator, Image, StyleSheet } from 'react-native'
 
+import { AppButton } from '@/components/ui/AppButton'
 import { TextInput } from '@/components/ui/TextInput'
 import { ThemedText } from '@/components/ui/ThemedText'
 import { ThemedView } from '@/components/ui/ThemedView'
@@ -13,41 +14,44 @@ import { AuthContext } from '@/context/AuthContext'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useRouter } from 'expo-router'
 
+const logo = require('../../assets/images/logo.png')
+
 interface FormData {
   email:    string
   username: string
   password: string
 }
 
-const schema = yup.object({
-  email:    yup.string().email('Email invalide').required('Requis'),
-  username: yup.string().min(3, 'Min 3 caractères').required('Requis'),
-  password: yup.string().min(6, 'Min 6 caractères').required('Requis'),
-}).required()
+const schema = yup
+  .object({
+    email:    yup.string().email('Email invalide').required('Requis'),
+    username: yup.string().min(3, 'Min 3 caractères').required('Requis'),
+    password: yup.string().min(6, 'Min 6 caractères').required('Requis'),
+  })
+  .required()
 
 export default function RegisterScreen() {
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema),
-  })
-  const { signUp } = useContext(AuthContext)
-  const [loading, setLoading] = useState(false)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({ resolver: yupResolver(schema) })
+  const { signUp, loading, error } = useContext(AuthContext)
+  const [busy, setBusy] = useState(false)
   const router = useRouter()
 
   const onSubmit = async (data: FormData) => {
-    setLoading(true)
+    setBusy(true)
     try {
       await signUp(data.email, data.username, data.password)
-      // Une fois inscrit, on retourne à l'accueil
       router.replace('/')
-    } catch {
-      alert('Échec de l’inscription')
-    } finally {
-      setLoading(false)
-    }
+    } catch {}
+    setBusy(false)
   }
 
   return (
     <ThemedView style={styles.container}>
+      <Image source={logo} style={styles.logo} resizeMode="contain" />
       <ThemedText type="title">Inscription</ThemedText>
 
       <Controller
@@ -95,14 +99,19 @@ export default function RegisterScreen() {
         )}
       />
 
-      {loading
-        ? <ActivityIndicator />
-        : <Button title="S’inscrire" onPress={handleSubmit(onSubmit)} />
-      }
+      {error && <ThemedText type="subtitle">{error}</ThemedText>}
 
-      <Button
+      {busy ? (
+        <ActivityIndicator />
+      ) : (
+        <AppButton title="S’inscrire" onPress={handleSubmit(onSubmit)} />
+      )}
+
+      <AppButton
         title="Déjà un compte ? Connexion"
+        variant="secondary"
         onPress={() => router.push('/login')}
+        style={{ marginTop: 16 }}
       />
     </ThemedView>
   )
@@ -110,8 +119,14 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex:     1,
-    padding:  20,
-    justifyContent: 'center',
+    flex: 1,
+    padding: 20,
+
+  },
+  logo: {
+    width: 240,
+    height: 240,
+    marginBottom: 24,
+    alignSelf: 'center',
   },
 })

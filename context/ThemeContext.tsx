@@ -14,7 +14,7 @@ const ThemeModeContext = createContext({
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const system = useColorScheme() as Mode
-  const [mode, setMode] = useState<Mode>(system)
+  const [mode, setMode] = useState<Mode>('light')
 
   const toggle = () => setMode((m) => (m === 'light' ? 'dark' : 'light'))
 

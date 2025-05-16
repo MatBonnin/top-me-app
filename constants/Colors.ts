@@ -34,7 +34,7 @@ const Colors = {
     textSecondary:  '#9CA3AF',
     border:         '#4B5563',
     card:           '#1F2937',
-    background:     '#374151',
+    background:     '#15181c',
     notification:   '#EF4444',
     tint:           '#3B82F6',
   },
