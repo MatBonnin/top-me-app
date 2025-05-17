@@ -8,7 +8,6 @@ import {
   updateItem,
   updateList,
 } from '@/services/lists'
-import { batchValidate } from '@/services/validation'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useEffect, useRef, useState } from 'react'
 import {
@@ -27,6 +26,7 @@ import { ThemedText } from '@/components/ui/ThemedText'
 import { ThemedView } from '@/components/ui/ThemedView'
 import Colors from '@/constants/Colors'
 import { useThemeMode } from '@/context/ThemeContext'
+import { batchValidate } from '@/services/validation'
 import { getImageUri } from '@/utils/getImageUri'
 import { useTranslation } from 'react-i18next'
 
@@ -90,11 +90,13 @@ export default function CreateTop5Screen() {
 
     // Préparer les données à valider avec le rank
     const itemsToValidate = items
-      .map((it, idx) => ({
-        rank: idx + 1,
-        name: it.name.trim(),
-      }))
-      .filter(it => it.name)
+    .map((it, idx) => ({
+      rank: idx + 1,
+      name: it.id
+        ? t(`items.${it.name}`, { defaultValue: it.name }).trim()
+        : it.name.trim(),
+    }))
+    .filter(it => it.name)
 
     // Appeler batchValidate avec [{rank, name}, ...]
     const result = await batchValidate(categoryName!, itemsToValidate)
