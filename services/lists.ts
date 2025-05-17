@@ -1,7 +1,6 @@
 // src/services/lists.ts
 
 import { DEVICE_LANG } from '../utils/locale';
-
 import api from "./api";
 
 export interface Category {

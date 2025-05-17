@@ -11,17 +11,27 @@ interface Props {
   name: string;
   imageUrl: string;
   onPress: () => void;
+  hasList?: boolean;
 }
 
-export default function CategoryCard({ name, imageUrl, onPress }: Props) {
+export default function CategoryCard({ name, imageUrl, onPress, hasList }: Props) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-       <Image
-         source={{ uri: getImageUri(imageUrl) }} // <-- on passe par le helper
+    <TouchableOpacity
+      style={[
+        styles.card,
+        hasList && styles.cardHasList // change background if hasList
+      ]}
+      onPress={onPress}
+    >
+      <Image
+        source={{ uri: getImageUri(imageUrl) }} // <-- on passe par le helper
         style={styles.icon}
         resizeMode="contain"
       />
       <Text style={styles.label}>{name}</Text>
+      {hasList && (
+        <Text style={styles.badge}>✓</Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -48,6 +58,11 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  cardHasList: {
+    backgroundColor: '#DCFCE7', // light green
+    borderWidth: 1,
+    borderColor: '#22C55E',
+  },
   icon: {
     width: 64,
     height: 64,
@@ -57,5 +72,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#374151',
+  },
+  badge: {
+    position: 'absolute',
+    top: 8,
+    right: 12,
+    backgroundColor: '#22C55E',
+    color: 'white',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    fontSize: 14,
+    fontWeight: 'bold',
+    overflow: 'hidden',
   },
 });

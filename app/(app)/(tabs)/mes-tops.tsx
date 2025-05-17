@@ -1,20 +1,6 @@
 // app/(tabs)/mes-tops.tsx
 
-
-
-import { ThemedText } from '@/components/ui/ThemedText'
-import { ThemedView } from '@/components/ui/ThemedView'
-import React from 'react'
-import { StyleSheet } from 'react-native'
-
+// Cette page est désormais inutile, voir l'accueil pour "Mes Tops".
 export default function MesTopsScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Mes Tops</ThemedText>
-    </ThemedView>
-  )
+  return null
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center' }
-})
