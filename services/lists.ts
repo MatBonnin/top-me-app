@@ -1,5 +1,7 @@
 // src/services/lists.ts
 
+import { DEVICE_LANG } from '../utils/locale';
+
 import api from "./api";
 
 export interface Category {
@@ -41,12 +43,19 @@ export async function fetchList(id: string): Promise<List> {
   return data;
 }
 
-export async function createList(title: string, categoryId: string): Promise<List> {
+export async function createList(
+  title: string,
+  categoryId: string
+): Promise<List> {
   const { data } = await api.post<List>('/lists', { title, categoryId });
   return data;
 }
 
-export async function updateList(id: string, title: string, categoryId: string): Promise<List> {
+export async function updateList(
+  id: string,
+  title: string,
+  categoryId: string
+): Promise<List> {
   const { data } = await api.patch<List>(`/lists/${id}`, { title, categoryId });
   return data;
 }
@@ -61,29 +70,52 @@ export async function fetchItems(listId: string): Promise<Item[]> {
   return data;
 }
 
-
 export async function fetchListByCategory(categoryId: string): Promise<List> {
-  
-    const { data } = await api.get<List>(`/lists/category/${categoryId}`);
-    return data;
-
-}
-
-
-export async function addItem(listId: string, name: string, rank: number): Promise<Item> {
-  const { data } = await api.post<Item>(`/lists/${listId}/items`, { name, rank });
+  const { data } = await api.get<List>(`/lists/category/${categoryId}`);
   return data;
 }
 
+/**
+ * Ajoute un item à une liste, en envoyant également
+ * la langue de saisie de l'utilisateur.
+ */
+export async function addItem(
+  listId: string,
+  name: string,
+  rank: number
+): Promise<Item> {
+  console.log('addItem', listId, name, rank);
+  const lang = DEVICE_LANG;
+  const { data } = await api.post<Item>(
+    `/lists/${listId}/items`,
+    { name, rank, lang }
+  );
+  return data;
+}
+
+/**
+ * Met à jour un item : si le champ `name` est présent,
+ * on envoie aussi la langue actuelle pour retraduction si besoin.
+ */
 export async function updateItem(
   listId: string,
   itemId: string,
   fields: Partial<Pick<Item, 'name' | 'rank'>>
 ): Promise<Item> {
-  const { data } = await api.patch<Item>(`/lists/${listId}/items/${itemId}`, fields);
+  const body: any = { ...fields };
+  if (fields.name !== undefined) {
+    body.lang = DEVICE_LANG;
+  }
+  const { data } = await api.patch<Item>(
+    `/lists/${listId}/items/${itemId}`,
+    body
+  );
   return data;
 }
 
-export async function deleteItem(listId: string, itemId: string): Promise<void> {
+export async function deleteItem(
+  listId: string,
+  itemId: string
+): Promise<void> {
   await api.delete(`/lists/${listId}/items/${itemId}`);
 }

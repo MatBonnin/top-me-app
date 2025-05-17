@@ -8,6 +8,7 @@ import {
   updateItem,
   updateList,
 } from '@/services/lists'
+import { batchValidate } from '@/services/validation'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useEffect, useRef, useState } from 'react'
 import {
@@ -26,50 +27,42 @@ import { ThemedText } from '@/components/ui/ThemedText'
 import { ThemedView } from '@/components/ui/ThemedView'
 import Colors from '@/constants/Colors'
 import { useThemeMode } from '@/context/ThemeContext'
-import { batchValidate } from '@/services/validation'
 import { getImageUri } from '@/utils/getImageUri'
+import { useTranslation } from 'react-i18next'
 
 export default function CreateTop5Screen() {
-  const {
-    categoryId,
-    categoryName,
-    categoryImage,
-  } = useLocalSearchParams<{
-    categoryId: string
-    categoryName: string
-    categoryImage: string
-  }>()
+  const { t } = useTranslation()
+  const { mode } = useThemeMode()
   const router = useRouter()
+  const { categoryId, categoryName, categoryImage } =
+    useLocalSearchParams<{
+      categoryId: string
+      categoryName: string
+      categoryImage: string
+    }>()
 
   const [listId, setListId] = useState<string | null>(null)
-  const [title, setTitle] = useState(`Top 5 ${categoryName}`)
+  const [title, setTitle] = useState(`Top 5 ${t(`categories.${categoryName}`)}`)
   const [items, setItems] = useState<{ id?: string; name: string }[]>(
     Array.from({ length: 5 }, () => ({ name: '' }))
   )
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  // cache local des validations
   const validationCache = useRef<Record<string, boolean>>({})
-
-  // index des items invalides
   const [invalidItems, setInvalidItems] = useState<Record<number, boolean>>({})
-
-  // snackbar
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null)
   const [snackbar, setSnackbar] = useState<{
     message: string
     variant: 'info' | 'success' | 'warning' | 'error'
   } | null>(null)
-
-  const { mode } = useThemeMode()
-  const [focusedIdx, setFocusedIdx] = useState<number | null>(null)
 
   useEffect(() => {
     async function load() {
       setLoading(true)
       setListId(null)
       setItems(Array.from({ length: 5 }, () => ({ name: '' })))
-      setTitle(`Top 5 ${categoryName}`)
+      setTitle(`Top 5 ${t(`categories.${categoryName}`)} `)
 
       try {
         const list = await fetchListByCategory(categoryId)
@@ -95,27 +88,35 @@ export default function CreateTop5Screen() {
   const onSave = async () => {
     setSaving(true)
 
-    // 1) Batch validation IA
-    const names = items.map(it => it.name.trim())
-    const toValidate = names.filter(n => n)
-    const result = await batchValidate(categoryName!, toValidate)
+    // Préparer les données à valider avec le rank
+    const itemsToValidate = items
+      .map((it, idx) => ({
+        rank: idx + 1,
+        name: it.name.trim(),
+      }))
+      .filter(it => it.name)
 
-    // 2) Marquer les invalides
+    // Appeler batchValidate avec [{rank, name}, ...]
+    const result = await batchValidate(categoryName!, itemsToValidate)
+    console.log('Validation result:', result)
+    console.log('itemsToValidate:', itemsToValidate)
+
+    // Adapter la détection des champs invalides
     const invalid: Record<number, boolean> = {}
-    names.forEach((name, idx) => {
-      if (name && !result[name]) {
-        invalid[idx] = true
-      }
-      // stocker en cache
-      validationCache.current[`${categoryName}:${name}`.toLowerCase()] =
-        result[name]
+    itemsToValidate.forEach(it => {
+      if (!result[it.rank]) invalid[it.rank - 1] = true
+      validationCache.current[`${categoryName}:${it.name}`.toLowerCase()] =
+        result[it.rank]
     })
     setInvalidItems(invalid)
 
     if (Object.keys(invalid).length > 0) {
       setSnackbar({
         message:
-          'Champs invalides: ' +
+          t('validation.invalid_items', {
+            defaultValue: 'Champs invalides:',
+          }) +
+          ' ' +
           Object.keys(invalid)
             .map(i => `${Number(i) + 1}`)
             .join(', '),
@@ -125,7 +126,6 @@ export default function CreateTop5Screen() {
       return
     }
 
-    // 3) Création / mise à jour de la liste et des items
     try {
       let list
       if (listId) {
@@ -151,11 +151,15 @@ export default function CreateTop5Screen() {
         }
       }
 
-      setSnackbar({ message: 'Enregistré !', variant: 'success' })
+      setSnackbar({
+        message: t('common.saved', { defaultValue: 'Enregistré !' }),
+        variant: 'success',
+      })
       router.replace('/')
     } catch (err: any) {
       setSnackbar({
-        message: err.message || 'Échec de l’enregistrement.',
+        message:
+          err.message || t('common.save_error', { defaultValue: 'Échec de l’enregistrement.' }),
         variant: 'error',
       })
     } finally {
@@ -166,7 +170,7 @@ export default function CreateTop5Screen() {
   if (loading) {
     return (
       <ThemedView style={styles.center}>
-        <ThemedText>Chargement…</ThemedText>
+        <ThemedText>{t('common.loading', { defaultValue: 'Chargement…' })}</ThemedText>
       </ThemedView>
     )
   }
@@ -177,11 +181,11 @@ export default function CreateTop5Screen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.container} 
+        <ScrollView
+          contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Image de la catégorie */}
           {categoryImage && (
             <Image
               source={{ uri: getImageUri(categoryImage) }}
@@ -189,16 +193,23 @@ export default function CreateTop5Screen() {
             />
           )}
           <ThemedText type="title" style={styles.title}>
-            {title}
+            { 'Top 5 ' + t(`categories.${categoryName}`, {
+              defaultValue: categoryName,
+            })}
           </ThemedText>
+
           {items.map((it, idx) => (
             <View key={idx} style={styles.row}>
-              <View style={[
-                styles.itemContainer,
-                mode === 'dark' ? styles.itemContainerDark : styles.itemContainerLight,
-                invalidItems[idx] && { borderColor: '#EF4444' },
-                focusedIdx === idx && { borderColor: Colors[mode].primary }
-              ]}>
+              <View
+                style={[
+                  styles.itemContainer,
+                  mode === 'dark'
+                    ? styles.itemContainerDark
+                    : styles.itemContainerLight,
+                  invalidItems[idx] && { borderColor: '#EF4444' },
+                  focusedIdx === idx && { borderColor: Colors[mode].primary },
+                ]}
+              >
                 <ThemedText
                   type="bigSubtitle"
                   style={[
@@ -209,37 +220,43 @@ export default function CreateTop5Screen() {
                   {idx + 1}
                 </ThemedText>
                 <ListInput
-                  placeholder={`${categoryName} ${idx + 1}`}
-                  value={it.name}
+                  placeholder={`${t(
+                    `categories.${categoryName}`,
+                    { defaultValue: categoryName }
+                  )} ${idx + 1}`}
+                  value={
+                    it.name
+                      ? t(`items.${it.name}`, { defaultValue: it.name })
+                      : ''
+                  }
                   onChangeText={text => {
                     const copy = [...items]
                     copy[idx].name = text
                     setItems(copy)
-                    // reset invalide si corrigé
                     setInvalidItems(prev => ({ ...prev, [idx]: false }))
                   }}
-                  style={[
-                    styles.inputNoBg,
-                  ]}
+                  style={[styles.inputNoBg]}
                   onFocus={() => setFocusedIdx(idx)}
-                  onBlur={() => setFocusedIdx(focusedIdx === idx ? null : focusedIdx)}
+                  onBlur={() =>
+                    setFocusedIdx(focusedIdx === idx ? null : focusedIdx)
+                  }
                 />
               </View>
             </View>
           ))}
-          {/* Ajout d'un espace pour éviter que le contenu ne soit masqué par les boutons */}
+
           <View style={{ height: 120 }} />
         </ScrollView>
-        {/* Boutons fixes en bas */}
+
         <View style={styles.bottomButtons}>
           <AppButton
-            title={saving ? 'Enregistrement…' : 'Enregistrer'}
+            title={saving ? t('common.saving', { defaultValue: 'Enregistrement…' }) : t('common.save', { defaultValue: 'Enregistrer' })}
             onPress={onSave}
             disabled={saving}
             style={{ flex: 1, marginRight: 8 }}
           />
           <AppButton
-            title="Annuler"
+            title={t('common.cancel', { defaultValue: 'Annuler' })}
             variant="secondary"
             onPress={() => router.back()}
             style={{ flex: 1, marginLeft: 8, marginTop: 0 }}
@@ -247,7 +264,6 @@ export default function CreateTop5Screen() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* Snackbar */}
       {snackbar && (
         <Snackbar
           message={snackbar.message}
@@ -261,11 +277,10 @@ export default function CreateTop5Screen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  container: { 
-    padding: 20, 
-    marginTop: 40, 
+  container: {
+    padding: 20,
+    marginTop: 40,
     paddingBottom: 140,
-    // Ajout d'espace pour aérer la liste
     minHeight: 600,
   },
   categoryImage: {
@@ -274,10 +289,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 60,
   },
-  row: { 
-    marginBottom: 28, 
+  title: {
+    marginVertical: 24,
+    textAlign: 'center',
+  },
+  row: {
+    marginBottom: 28,
     alignItems: 'center',
-    minHeight: 72, // augmente la hauteur de chaque ligne
+    minHeight: 72,
   },
   itemContainer: {
     flexDirection: 'row',
@@ -286,9 +305,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     paddingLeft: 18,
     paddingRight: 12,
-    paddingVertical: 0,
     minHeight: 64,
-    // ombre subtile
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -296,34 +313,28 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   itemContainerLight: {
-    backgroundColor: '#fff', // même couleur que le fond clair
+    backgroundColor: '#fff',
     borderColor: '#e5e7eb',
   },
   itemContainerDark: {
-    backgroundColor: '#18181b', // même couleur que le fond sombre
+    backgroundColor: '#18181b',
     borderColor: '#27272a',
   },
-  rank: { 
-    width: 40, // plus large
-    textAlign: 'right', 
-    marginRight: 16, // plus d'espace avec l'input
-    fontSize: 32, // plus gros chiffre
+  rank: {
+    width: 40,
+    textAlign: 'right',
+    marginRight: 16,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#888',
   },
   inputNoBg: {
     backgroundColor: 'transparent',
     borderWidth: 0,
-    borderRadius: 0,
-    shadowColor: 'transparent',
     flex: 1,
     fontSize: 22,
     height: 64,
     paddingHorizontal: 0,
-  },
-  title: { 
-    marginBottom: 36, 
-    textAlign: 'center',
   },
   bottomButtons: {
     position: 'absolute',

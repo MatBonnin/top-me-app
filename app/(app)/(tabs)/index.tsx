@@ -14,12 +14,14 @@ import CategoryCard from '@/components/CategoryCard';
 import { ThemedText } from '@/components/ui/ThemedText';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 export default function AccueilScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const logo = require('../../../assets/images/logo.png');
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchCategories()
@@ -45,7 +47,7 @@ export default function AccueilScreen() {
           {categories.map(cat => (
             <CategoryCard
               key={cat.id}
-              name={cat.name}
+              name={t(`categories.${cat.name}`)}
               imageUrl={cat.imageUrl!}
               onPress={() => {
                 router.push({
