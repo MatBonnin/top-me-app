@@ -52,7 +52,7 @@ export default function StatsScreen() {
               onPress={() =>
                 router.push({
                   // on indique la route « à trous » correspondant à ton fichier
-                  pathname: '/mes-tops/[categoryId]/stats',
+                  pathname: '/statistiques/[categoryId]/stats',
                   params: {
                     categoryId: String(item.categoryId),
                     categoryName: t(

@@ -131,9 +131,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 240,
-    height: 240,
+    width: 200,
+    height: 200,
     alignSelf: 'center',
+    marginTop: 0,
+ 
   },
   search: {
     marginBottom: 32,
