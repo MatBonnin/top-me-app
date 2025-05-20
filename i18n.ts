@@ -1,11 +1,11 @@
 // src/i18n.ts
 
-import { API_URL } from '@env';
 import axios from 'axios';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 export async function setupI18n(locale: string) {
+  const API_URL = process.env.EXPO_PUBLIC_API_URL;
   // 1) charge depuis le backend
   const { data } = await axios.get<{ categories: Record<string,string> }>(
     API_URL+`/i18n/${locale}`

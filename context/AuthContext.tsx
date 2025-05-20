@@ -21,18 +21,20 @@ interface AuthContextData {
   user: AuthResponse['user'] | null;
   loading: boolean;
   error: string | null;
-  signIn:  (email: string, password: string) => Promise<void>;
-  signUp:  (email: string, username: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  signInWithFacebook: (token: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextData>({
   user: null,
   loading: true,
   error: null,
-  signIn:  async () => {},
-  signUp:  async () => {},
+  signIn: async () => {},
+  signUp: async () => {},
   signOut: async () => {},
+  signInWithFacebook: async () => {},
 });
 
 export function useAuth() {
@@ -40,9 +42,9 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser]       = useState<AuthResponse['user'] | null>(null);
+  const [user, setUser] = useState<AuthResponse['user'] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadUser() {
@@ -106,8 +108,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithFacebook = async (token: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await AsyncStorage.setItem('token', token);
+      const me = await apiFetchMe();
+      setUser(me);
+    } catch (err: any) {
+      setError(err.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        signIn,
+        signUp,
+        signOut,
+        signInWithFacebook,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

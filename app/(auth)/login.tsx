@@ -6,6 +6,7 @@ import React, { useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { ActivityIndicator, Image, StyleSheet } from 'react-native'
 
+import FacebookLoginButton from '@/components/FacebookLoginButton'
 import { AppButton } from '@/components/ui/AppButton'
 import { TextInput } from '@/components/ui/TextInput'
 import { ThemedText } from '@/components/ui/ThemedText'
@@ -90,6 +91,9 @@ export default function LoginScreen() {
       ) : (
         <AppButton title="Se connecter" onPress={handleSubmit(onSubmit)} />
       )}
+
+   
+      <FacebookLoginButton />
 
       <AppButton
         title="Pas encore de compte ? Inscription"
