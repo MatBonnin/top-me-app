@@ -2,6 +2,7 @@
 
 import {
   AuthResponse,
+  facebookLogin as apiFacebookLogin,
   fetchMe as apiFetchMe,
   login as apiLogin,
   logout as apiLogout,
@@ -69,7 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { access_token, user: me } = await apiLogin({ email, password });
-      await AsyncStorage.setItem('token', access_token);
       setUser(me);
     } catch (err: any) {
       setError(err.message);
@@ -84,7 +84,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { access_token, user: me } = await apiRegister({ email, username, password });
-      await AsyncStorage.setItem('token', access_token);
       setUser(me);
     } catch (err: any) {
       setError(err.message);
@@ -98,7 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       await apiLogout();
-      await AsyncStorage.removeItem('token');
       setUser(null);
       setError(null);
     } catch (err: any) {
@@ -112,8 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      await AsyncStorage.setItem('token', token);
-      const me = await apiFetchMe();
+      const { access_token, user: me } = await apiFacebookLogin({ accessToken: token });
       setUser(me);
     } catch (err: any) {
       setError(err.message);

@@ -5,9 +5,11 @@ import { StyleSheet, View } from 'react-native'
 import { AccessToken, LoginButton } from 'react-native-fbsdk-next'
 
 import { AuthContext } from '@/context/AuthContext'
+import { useRouter } from 'expo-router'
 
 export default function FacebookLoginButton() {
   const { signInWithFacebook } = useContext(AuthContext)
+  const router = useRouter()
 
   const handleLoginFinished = (error: any, result: { isCancelled: boolean }) => {
     if (error) {
@@ -18,6 +20,12 @@ export default function FacebookLoginButton() {
       AccessToken.getCurrentAccessToken().then(data => {
         if (data?.accessToken) {
           signInWithFacebook(data.accessToken.toString())
+            .then(() => {
+              router.replace('/') // Redirige vers la page d'accueil après succès
+            })
+            .catch((err: any) => {
+              console.error('FB signInWithFacebook error:', err)
+            })
         }
       })
     }
@@ -26,6 +34,7 @@ export default function FacebookLoginButton() {
   return (
     <View style={styles.container}>
       <LoginButton
+        permissions={["public_profile", "email"]}
         onLoginFinished={handleLoginFinished}
         onLogoutFinished={() => console.log('FB Logout')}
       />
