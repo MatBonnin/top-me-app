@@ -12,35 +12,37 @@ interface Props {
   imageUrl: string;
   onPress: () => void;
   hasList?: boolean;
+  width?: number;
+  minHeight?: number;
+  iconSize?: number;
+  fontSize?: number;
 }
 
-export default function CategoryCard({ name, imageUrl, onPress, hasList }: Props) {
+export default function CategoryCard({ name, imageUrl, onPress, hasList, width, minHeight, iconSize = 64, fontSize = 16 }: Props) {
   return (
     <TouchableOpacity
       style={[
         styles.card,
-        hasList && styles.cardHasList // change background if hasList
+        width !== undefined && { width },
+        minHeight !== undefined && { minHeight },
+        hasList && styles.cardHasList,
       ]}
       onPress={onPress}
+      activeOpacity={0.85}
     >
       <Image
-        source={{ uri: getImageUri(imageUrl) }} // <-- on passe par le helper
-        style={styles.icon}
+        source={{ uri: getImageUri(imageUrl) }}
+        style={[styles.icon, { width: iconSize, height: iconSize }]}
         resizeMode="contain"
       />
-      <Text style={styles.label}>{name}</Text>
-      {hasList && (
-        <Text style={styles.badge}>✓</Text>
-      )}
+      <Text style={[styles.label, { fontSize }]}>{name}</Text>
+      {hasList && <Text style={styles.badge}>✓</Text>}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    // 48% pour deux colonnes avec un petit gap
-    width: '48%',
-    marginBottom: 16,
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     alignItems: 'center',
