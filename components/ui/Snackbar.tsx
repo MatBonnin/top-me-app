@@ -6,10 +6,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  ViewStyle,
 } from 'react-native';
-
-type Variant = 'info' | 'success' | 'warning' | 'error';
+import type { SnackbarProps, Variant } from '@/interfaces/components/SnackbarProps';
 
 const COLORS: Record<Variant, string> = {
   info:    '#3B82F6', // bleu
@@ -18,13 +16,6 @@ const COLORS: Record<Variant, string> = {
   error:   '#EF4444', // rouge
 };
 
-interface SnackbarProps {
-  message: string;
-  variant?: Variant;
-  duration?: number;   // en ms
-  onDismiss?: () => void;
-  style?: ViewStyle;
-}
 
 export function Snackbar({
   message,

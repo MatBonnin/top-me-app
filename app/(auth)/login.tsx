@@ -12,13 +12,10 @@ import { ThemedView } from '@/components/ui/ThemedView';
 import { AuthContext } from '@/context/AuthContext';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'expo-router';
+import type { LoginFormData } from '@/interfaces/forms/LoginFormData';
 
 const logo = require('../../assets/images/logo.png');
 
-interface FormData {
-  email: string;
-  password: string;
-}
 
 const schema = yup
   .object({
@@ -32,7 +29,7 @@ export default function LoginScreen() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  } = useForm<LoginFormData>({ resolver: yupResolver(schema) });
   const { user, signIn, loading, error } = useContext(AuthContext);
   const [busy, setBusy] = useState(false);
   const router = useRouter();
@@ -44,7 +41,7 @@ export default function LoginScreen() {
     }
   }, [user]);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     setBusy(true);
     try {
       await signIn(data.email, data.password);

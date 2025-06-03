@@ -3,22 +3,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
 import api from './api';
-
-export interface LoginDto    { email: string; password: string }
-export interface RegisterDto { email: string; username: string; password: string }
-export interface FacebookLoginDto { accessToken: string }
-
-export interface AuthResponse {
-  access_token: string;
-  user: { id: string; email: string; username: string; avatarUrl?: string }
-}
-
-export interface MeResponse {
-  id: string;
-  email: string;
-  username: string;
-  avatarUrl?: string;
-}
+import type {
+  AuthResponse,
+  FacebookLoginDto,
+  LoginDto,
+  MeResponse,
+  RegisterDto,
+} from '@/interfaces/services/auth';
 
 /**
  * Authentification : retourne token + user

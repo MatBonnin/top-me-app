@@ -13,14 +13,10 @@ import { ThemedView } from '@/components/ui/ThemedView'
 import { AuthContext } from '@/context/AuthContext'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useRouter } from 'expo-router'
+import type { RegisterFormData } from '@/interfaces/forms/RegisterFormData'
 
 const logo = require('../../assets/images/logo.png')
 
-interface FormData {
-  email:    string
-  username: string
-  password: string
-}
 
 const schema = yup
   .object({
@@ -35,12 +31,12 @@ export default function RegisterScreen() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) })
+  } = useForm<RegisterFormData>({ resolver: yupResolver(schema) })
   const { signUp, loading, error } = useContext(AuthContext)
   const [busy, setBusy] = useState(false)
   const router = useRouter()
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setBusy(true)
     try {
       await signUp(data.email, data.username, data.password)

@@ -1,18 +1,12 @@
-import { Category, List } from '@/services/lists'
+import type { Category, List } from '@/interfaces/services/lists'
 import { StyleSheet, View } from 'react-native'
 
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import CategoryCard from './CategoryCard'
+import type { CategoryGridProps } from '@/interfaces/components/CategoryGridProps'
 
-interface Props {
-  categories: Category[]
-  lists: List[]
-  search?: string
-  onCategoryPress?: (cat: Category) => void
-}
-
-export default function CategoryGrid({ categories, lists, search = '', onCategoryPress }: Props) {
+export default function CategoryGrid({ categories, lists, search = '', onCategoryPress }: CategoryGridProps) {
   const router = useRouter()
   const { t } = useTranslation()
 
