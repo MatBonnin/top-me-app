@@ -3,12 +3,12 @@ import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native'
 
 import CategoryCard from '@/components/CategoryCard'
 import { ThemedView } from '@/components/ui/ThemedView'
-import { fetchTopCategoryOfTheDay } from '@/services/categorie'
+import { fetchTopCategoryOfTheDay, TopCategoryOfTheDay } from '@/services/categorie'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 
 export default function AccueilScreen() {
-  const [categoryOfTheDay, setCategoryOfTheDay] = useState<any>(null)
+  const [categoryOfTheDay, setCategoryOfTheDay] = useState<TopCategoryOfTheDay | null>(null)
   const [loading, setLoading] = useState(true)
   const { t } = useTranslation()
   const logo = require('../../../assets/images/logo.png')
