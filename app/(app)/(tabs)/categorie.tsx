@@ -1,4 +1,4 @@
-// app/(app)/(tabs)/index.tsx
+// app/(app)/(tabs)/categorie.tsx
 
 import { Category, List, fetchCategories, fetchLists } from '@/services/lists';
 import React, { useEffect, useState } from 'react';
