@@ -12,10 +12,9 @@ export default function ProtectedLayout() {
   const { user, loading: authLoading } = useAuth();
   const [i18nReady, setI18nReady] = useState(false);
 
-  // Charger i18n au démarrage
   useEffect(() => {
     (async () => {
-      const locale = 'fr'; // ou détecte dynamiquement
+      const locale = 'fr';
       try {
         await setupI18n(locale);
       } catch (e) {
@@ -26,7 +25,6 @@ export default function ProtectedLayout() {
     })();
   }, []);
 
-  // Tant que l’authentification OU la config i18n ne sont pas finies, afficher un loader
   if (authLoading || !i18nReady) {
     return (
       <ThemedView style={styles.center}>
@@ -35,13 +33,16 @@ export default function ProtectedLayout() {
     );
   }
 
-  // Si l’utilisateur n’est pas connecté, rediriger vers /login
   if (!user) {
     return <Redirect href="/login" />;
   }
 
-  // Authentifié + i18n prêt → afficher les écrans protégés
-  return <Slot />;
+  // ← ici on enveloppe Slot pour appliquer SafeArea et theme
+  return (
+    <ThemedView style={{ flex: 1 }}>
+      <Slot />
+    </ThemedView>
+  );
 }
 
 const styles = StyleSheet.create({

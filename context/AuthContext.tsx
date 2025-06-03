@@ -1,5 +1,3 @@
-// src/context/AuthContext.tsx
-
 import {
   AuthResponse,
   facebookLogin as apiFacebookLogin,
@@ -15,7 +13,9 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 
+import api from '@/services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthContextData {
@@ -47,17 +47,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Tentative de refresh token si fetchMe échoue
+  const tryRefresh = async (): Promise<boolean> => {
+    try {
+      const { data } = await api.get<{ access_token: string }>('/auth/refresh');
+      await AsyncStorage.setItem('token', data.access_token);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     async function loadUser() {
-      const token = await AsyncStorage.getItem('token');
-      if (token) {
+      setLoading(true);
+      const jwt = await AsyncStorage.getItem('token');
+
+      if (jwt) {
         try {
           const me = await apiFetchMe();
           setUser(me);
+          setLoading(false);
+          return;
         } catch (err: any) {
+          // si c'est un 401, on tente le refresh puis re-fetch
+          if (err.response?.status === 401 && (await tryRefresh())) {
+            try {
+              const me2 = await apiFetchMe();
+              setUser(me2);
+              setLoading(false);
+              return;
+            } catch {
+              // si refetch échoue on tombe dans la cleanup
+            }
+          }
+          // token invalide ou refresh raté
           await AsyncStorage.removeItem('token');
-          setUser(null);
-          setError(err.message);
+        }
+      }
+
+      // pas de JWT valide, on essaye silent FB login
+      const fbData = await AccessToken.getCurrentAccessToken();
+      if (fbData?.accessToken) {
+        try {
+          const { access_token, user: me } = await apiFacebookLogin({
+            accessToken: fbData.accessToken,
+          });
+          await AsyncStorage.setItem('token', access_token);
+          setUser(me);
+        } catch (fbErr) {
+          console.error('Auto-FB login failed:', fbErr);
         }
       }
       setLoading(false);
@@ -70,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { access_token, user: me } = await apiLogin({ email, password });
+      await AsyncStorage.setItem('token', access_token);
       setUser(me);
     } catch (err: any) {
       setError(err.message);
@@ -84,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { access_token, user: me } = await apiRegister({ email, username, password });
+      await AsyncStorage.setItem('token', access_token);
       setUser(me);
     } catch (err: any) {
       setError(err.message);
@@ -97,6 +138,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       await apiLogout();
+      LoginManager.logOut();
+      await AsyncStorage.removeItem('token');
       setUser(null);
       setError(null);
     } catch (err: any) {
@@ -111,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const { access_token, user: me } = await apiFacebookLogin({ accessToken: token });
+      await AsyncStorage.setItem('token', access_token);
       setUser(me);
     } catch (err: any) {
       setError(err.message);

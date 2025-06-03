@@ -1,25 +1,23 @@
-// app/(auth)/login.tsx
+import * as yup from 'yup';
 
-import * as yup from 'yup'
+import React, { useContext, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { ActivityIndicator, Image, StyleSheet } from 'react-native';
 
-import React, { useContext, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { ActivityIndicator, Image, StyleSheet } from 'react-native'
+import FacebookLoginButton from '@/components/FacebookLoginButton';
+import { AppButton } from '@/components/ui/AppButton';
+import { TextInput } from '@/components/ui/TextInput';
+import { ThemedText } from '@/components/ui/ThemedText';
+import { ThemedView } from '@/components/ui/ThemedView';
+import { AuthContext } from '@/context/AuthContext';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useRouter } from 'expo-router';
 
-import FacebookLoginButton from '@/components/FacebookLoginButton'
-import { AppButton } from '@/components/ui/AppButton'
-import { TextInput } from '@/components/ui/TextInput'
-import { ThemedText } from '@/components/ui/ThemedText'
-import { ThemedView } from '@/components/ui/ThemedView'
-import { AuthContext } from '@/context/AuthContext'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useRouter } from 'expo-router'
-
-const logo = require('../../assets/images/logo.png')
+const logo = require('../../assets/images/logo.png');
 
 interface FormData {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }
 
 const schema = yup
@@ -27,26 +25,33 @@ const schema = yup
     email:    yup.string().email('Email invalide').required('Requis'),
     password: yup.string().min(6, 'Min 6 caractères').required('Requis'),
   })
-  .required()
+  .required();
 
 export default function LoginScreen() {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({ resolver: yupResolver(schema) })
-  const { signIn, loading, error } = useContext(AuthContext)
-  const [busy, setBusy] = useState(false)
-  const router = useRouter()
+  } = useForm<FormData>({ resolver: yupResolver(schema) });
+  const { user, signIn, loading, error } = useContext(AuthContext);
+  const [busy, setBusy] = useState(false);
+  const router = useRouter();
+
+  // Redirection si déjà authentifié
+  useEffect(() => {
+    if (user) {
+      router.replace('/');
+    }
+  }, [user]);
 
   const onSubmit = async (data: FormData) => {
-    setBusy(true)
+    setBusy(true);
     try {
-      await signIn(data.email, data.password)
-      router.replace('/')
+      await signIn(data.email, data.password);
+      // router.replace('/') sera déclenché par l'effet useEffect ci-dessus
     } catch {}
-    setBusy(false)
-  }
+    setBusy(false);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -84,15 +89,12 @@ export default function LoginScreen() {
         )}
       />
 
-      {/* {error && <ThemedText type="subtitle">{error}</ThemedText>} */}
-
       {busy ? (
         <ActivityIndicator />
       ) : (
         <AppButton title="Se connecter" onPress={handleSubmit(onSubmit)} />
       )}
 
-   
       <FacebookLoginButton />
 
       <AppButton
@@ -102,14 +104,13 @@ export default function LoginScreen() {
         style={{ marginTop: 16 }}
       />
     </ThemedView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    
   },
   logo: {
     width: 240,
@@ -117,4 +118,4 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     alignSelf: 'center',
   },
-})
+});

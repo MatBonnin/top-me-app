@@ -2,7 +2,7 @@ import { CategoryStat, fetchCategoryStats } from '@/services/stats'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native'
 
-import CategoryCard from '@/components/CategoryCard'
+import CategoryGrid from '@/components/CategoryGrid'
 import SearchInput from '@/components/SearchInput'
 import { ThemedText } from '@/components/ui/ThemedText'
 import { ThemedView } from '@/components/ui/ThemedView'
@@ -53,28 +53,17 @@ export default function GuessTopSelectCategoryScreen() {
       {loading ? (
         <ActivityIndicator style={{ marginTop: 32 }} />
       ) : (
-        <View style={styles.grid}>
-          {filtered.map(cat => (
-            <CategoryCard
-              key={cat.id}
-              name={cat.name}
-              imageUrl={cat.imageUrl || ''}
-              hasList={false}
-              onPress={() =>
-                router.push({
-                  pathname: '/games/guess-top/play',
-                  params: { categoryId: cat.categoryId || cat.id, categoryName: cat.name }
-                })
-              }
-            />
-          ))}
-          {filtered.length === 0 && (
-            <ThemedText style={{ textAlign: 'center', marginTop: 32 }}>
-              Aucune catégorie trouvée.
-            </ThemedText>
-          )}
-          {filtered.length % 2 === 1 && <View style={{ width: '48%' }} />}
-        </View>
+        <CategoryGrid
+          categories={filtered}
+          lists={[]}
+          search={''}
+          onCategoryPress={cat =>
+            router.push({
+              pathname: '/games/guess-top/play',
+              params: { categoryId: cat.id, categoryName: cat.name }
+            })
+          }
+        />
       )}
     </ThemedView>
   )

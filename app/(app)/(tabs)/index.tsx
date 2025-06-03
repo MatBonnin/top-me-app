@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Button, Image, StyleSheet, Text, View } from 'react-native'
 
 import CategoryCard from '@/components/CategoryCard'
 import { ThemedView } from '@/components/ui/ThemedView'
@@ -32,7 +32,7 @@ export default function AccueilScreen() {
             <Text style={styles.title}>{t('Catégorie du jour')}</Text>
             <View style={styles.cardWrapper}>
               <CategoryCard
-                name={categoryOfTheDay.category.name}
+                name={t(`categories.${categoryOfTheDay.category.name}`)}
                 imageUrl={categoryOfTheDay.category.imageUrl}
                 width={200}
                 minHeight={140}
@@ -51,6 +51,10 @@ export default function AccueilScreen() {
                 }
               />
             </View>
+            <Button
+        title="Ajouter un ami"
+        onPress={() => router.push('/search')}
+      />
           </View>
         ) : (
           <Text style={styles.noCategory}>{t('Aucune catégorie du jour disponible.')}</Text>
@@ -93,9 +97,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 12,
+   
   },
   categoryName: {
     fontSize: 24,

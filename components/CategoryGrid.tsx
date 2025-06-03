@@ -9,9 +9,10 @@ interface Props {
   categories: Category[]
   lists: List[]
   search?: string
+  onCategoryPress?: (cat: Category) => void
 }
 
-export default function CategoryGrid({ categories, lists, search = '' }: Props) {
+export default function CategoryGrid({ categories, lists, search = '', onCategoryPress }: Props) {
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -32,14 +33,18 @@ export default function CategoryGrid({ categories, lists, search = '' }: Props) 
               imageUrl={cat.imageUrl!}
               hasList={hasList}
               onPress={() => {
-                router.push({
-                  pathname: '/[categoryId]',
-                  params: {
-                    categoryId: cat.id,
-                    categoryName: cat.name,
-                    categoryImage: cat.imageUrl,
-                  },
-                })
+                if (onCategoryPress) {
+                  onCategoryPress(cat)
+                } else {
+                  router.push({
+                    pathname: '/[categoryId]',
+                    params: {
+                      categoryId: cat.id,
+                      categoryName: cat.name,
+                      categoryImage: cat.imageUrl,
+                    },
+                  })
+                }
               }}
             />
           </View>

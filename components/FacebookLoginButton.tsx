@@ -1,45 +1,51 @@
-// components/FacebookLoginButton.tsx
+import React, { useContext, useEffect } from 'react';
+import { Button, StyleSheet, View } from 'react-native';
+import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 
-import React, { useContext } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { AccessToken, LoginButton } from 'react-native-fbsdk-next'
-
-import { AuthContext } from '@/context/AuthContext'
-import { useRouter } from 'expo-router'
+import { AuthContext } from '@/context/AuthContext';
+import { useRouter } from 'expo-router';
 
 export default function FacebookLoginButton() {
-  const { signInWithFacebook } = useContext(AuthContext)
-  const router = useRouter()
+  const { user, signInWithFacebook, signOut } = useContext(AuthContext);
+  const router = useRouter();
 
-  const handleLoginFinished = (error: any, result: { isCancelled: boolean }) => {
-    if (error) {
-      console.error('FB Login Error:', error)
-    } else if (result.isCancelled) {
-      console.log('FB Login Cancelled')
-    } else {
-      AccessToken.getCurrentAccessToken().then(data => {
-        if (data?.accessToken) {
-          signInWithFacebook(data.accessToken.toString())
-            .then(() => {
-              router.replace('/') // Redirige vers la page d'accueil après succès
-            })
-            .catch((err: any) => {
-              console.error('FB signInWithFacebook error:', err)
-            })
-        }
-      })
+  // Redirige si déjà connecté
+  useEffect(() => {
+    if (user) {
+      router.replace('/');
     }
-  }
+  }, [user]);
+
+  const handleFBLogin = async () => {
+    try {
+      const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+      if (result.isCancelled) return;
+      const data = await AccessToken.getCurrentAccessToken();
+      if (data?.accessToken) {
+        await signInWithFacebook(data.accessToken.toString());
+      }
+    } catch (err) {
+      console.error('FB Login Error:', err);
+    }
+  };
+
+  const handleFBLogout = async () => {
+    try {
+      LoginManager.logOut();    // SDK FB
+      await signOut();          // API + AsyncStorage
+    } catch (err) {
+      console.error('FB Logout Error:', err);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <LoginButton
-        permissions={["public_profile", "email"]}
-        onLoginFinished={handleLoginFinished}
-        onLogoutFinished={() => console.log('FB Logout')}
-      />
+      {user
+        ? <Button title="Se déconnecter de Facebook" onPress={handleFBLogout} />
+        : <Button title="Se connecter avec Facebook" onPress={handleFBLogin} />
+      }
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -47,4 +53,4 @@ const styles = StyleSheet.create({
     marginTop: 24,
     alignItems: 'center',
   },
-})
+});
