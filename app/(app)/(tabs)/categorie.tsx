@@ -1,6 +1,7 @@
 // app/(app)/(tabs)/categorie.tsx
 
-import { Category, List, fetchCategories, fetchLists } from '@/services/lists';
+import { fetchCategories, fetchLists } from '@/services/lists';
+import type { Category, List } from '@/interfaces/services/lists';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,

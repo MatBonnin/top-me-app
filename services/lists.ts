@@ -1,29 +1,8 @@
 // src/services/lists.ts
 
 import { DEVICE_LANG } from '../utils/locale';
-import api from "./api";
-
-export interface Category {
-  id: string;
-  name: string;
-  imageUrl?: string;
-}
-
-export interface Item {
-  id: string;
-  name: string;
-  rank: number;
-  imageUrl?: string;
-}
-
-export interface List {
-  id: string;
-  title: string;
-  category: Category;
-  items: Item[];
-  createdAt: string;
-  updatedAt: string;
-}
+import api from './api';
+import type { Category, Item, List } from '@/interfaces/services/lists';
 
 // Categories
 export async function fetchCategories(): Promise<Category[]> {

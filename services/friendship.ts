@@ -1,14 +1,7 @@
 // src/services/friendship.ts
 
 import api from './api'
-
-export interface Friendship {
-  id: string
-  requester: any
-  addressee: any
-  status: 'pending' | 'accepted' | 'rejected'
-  createdAt: string
-}
+import type { Friendship } from '@/interfaces/services/friendship'
 
 // Envoyer une demande d'ami
 export async function sendFriendRequest(userId: string) {

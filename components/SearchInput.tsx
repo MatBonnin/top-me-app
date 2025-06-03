@@ -1,16 +1,10 @@
-import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import type { SearchInputProps } from '@/interfaces/components/SearchInputProps';
 
 // Utilisation d'une icône vectorielle (expo ou react-native-vector-icons)
-
-
-interface SearchInputProps extends TextInputProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  style?: any;
-}
 
 export default function SearchInput({ value, onChangeText, style, ...props }: SearchInputProps) {
   return (

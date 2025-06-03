@@ -4,21 +4,11 @@ import { Image, Platform, StyleSheet, Text, TouchableOpacity } from 'react-nativ
 
 import { getImageUri } from '@/utils/getImageUri';
 import React from 'react';
+import type { CategoryCardProps } from '@/interfaces/components/CategoryCardProps';
 
 // import { getImageUri } from '../utils/getImageUri'; // <-- import
 
-interface Props {
-  name: string;
-  imageUrl: string;
-  onPress: () => void;
-  hasList?: boolean;
-  width?: number;
-  minHeight?: number;
-  iconSize?: number;
-  fontSize?: number;
-}
-
-export default function CategoryCard({ name, imageUrl, onPress, hasList, width, minHeight, iconSize = 64, fontSize = 16 }: Props) {
+export default function CategoryCard({ name, imageUrl, onPress, hasList, width, minHeight, iconSize = 64, fontSize = 16 }: CategoryCardProps) {
   return (
     <TouchableOpacity
       style={[

@@ -1,21 +1,5 @@
 import api from './api'
-
-export interface CategoryStat {
-  id: string
-  categoryId?: string
-  name: string
-  imageUrl?: string
-  count: number // nombre de listes remplies par l'utilisateur
-}
-
-export interface ItemStat {
-  id: string
-  categoryId: string
-  item: string
-  score: number
-  appearances: number
-  updatedAt: string
-}
+import type { CategoryStat, ItemStat } from '@/interfaces/services/stats'
 
 export async function fetchCategoryStats(): Promise<CategoryStat[]> {
   const { data } = await api.get<CategoryStat[]>('/stats/categories')

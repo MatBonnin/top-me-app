@@ -1,18 +1,7 @@
 // src/services/users.ts
 
 import api from './api';
-
-export interface UserSummary {
-  id: string;
-  username: string;
-  email: string;
-  avatarUrl?: string;
-}
-
-export interface SearchUsersResult {
-  users: UserSummary[];
-  total: number;
-}
+import type { SearchUsersResult, UserSummary } from '@/interfaces/services/users';
 
 /**
  * Recherche d'utilisateurs (pagination simple).
