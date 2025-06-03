@@ -35,6 +35,24 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## Project structure
+
+```
+top-me-app/
+├─ app/            # Expo Router pages
+├─ assets/         # Static assets like images and fonts
+├─ src/
+│  ├─ components/  # Reusable UI components
+│  ├─ constants/   # Color palette and other constants
+│  ├─ context/     # React context providers
+│  ├─ hooks/       # Custom React hooks
+│  ├─ interfaces/  # TypeScript interfaces
+│  ├─ services/    # API calls
+│  ├─ theme/       # Navigation themes
+│  └─ utils/       # Utility helpers
+└─ scripts/        # Maintenance scripts
+```
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
